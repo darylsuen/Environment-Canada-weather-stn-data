@@ -68,6 +68,10 @@ def get_stn_data_concurrently(url: str, stn_id: str) -> pd.DataFrame:
         # and get the results, which are the dataframes.
         for future_obj in concurrent.futures.as_completed(future_obj_dict):
             df = future_obj.result()
+            # Check if the dataframe is empty (excluding the header) and exclude
+            # it from the list of dataframes if it is empty.
+            if not df.empty:
+                dataframes.append(df)
             dataframes.append(df)
     return dataframes
     

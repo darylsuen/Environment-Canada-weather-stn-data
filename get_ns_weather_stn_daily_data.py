@@ -9,7 +9,7 @@ import ns_weather_stn_data_functions as ns
 
 ######################## USER INPUT ######################################
 # Choose a station id.
-stn_id = '8200015'
+stn_id = '8200091'
 # Choose a folder name to save the daily weather data.
 foldername = 'NSDailyWeatherData'   
 # URL of the the weather data download page.
@@ -25,6 +25,7 @@ dataframes = ns.get_stn_data_concurrently(url, stn_id)
 # comment out the function above, remove the hash from the function below, 
 # and run again.
 #ns.get_stn_data_sequentially(url, stn_id)
+# Concatenate the dataframes into one dataframe.
 df = ns.concatenate_daily_dataframes(dataframes)
 # Drop columns that are not needed. Edit function in source script to change 
 # columns to drop.
@@ -35,7 +36,7 @@ regularly_spaced_df = ns.regularly_spaced_dates(df_dropped)
 ns.check_if_days_regularly_spaced_for_daily_data(regularly_spaced_df)
 # Get the date range of the data that will be used in the csv filename.
 date_range = ns.get_date_range(regularly_spaced_df)
-# Save the cleaned data to a csv file.
+# Save the datframe to a csv file.
 ns.save_cleaned_daily_data_to_csv(regularly_spaced_df, foldername, stn_id, date_range)
 # End the timer for the program.
 end_time = time.time()
