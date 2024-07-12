@@ -130,6 +130,33 @@ def drop_columns_hourly_data(df: pd.DataFrame) -> pd.DataFrame:
                  )
     return df_dropped
 
+def check_for_duplicate_dates(df: pd.DataFrame) -> None:
+    """
+    Check if there are duplicate dates in the dataframe. If there are, the
+    functions that ensure the dates or hours are regularly spaced will not work.
+    """
+    unique_dates_count = df['date'].nunique()
+    total_rows = len(df)
+    try:
+        assert unique_dates_count == total_rows
+    except AssertionError:
+        raise ValueError('There are duplicate dates in the dataframe.')
+    
+def print_duplicate_dates(df: pd.DataFrame) -> None:
+    """
+    Print the duplicate dates in the dataframe.
+    """
+    duplicate_dates = df[df['date'].duplicated(keep=False)]['date'].unique()
+    for date in duplicate_dates:
+        print(date)
+
+def remove_duplicate_dates(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove duplicate dates from the dataframe.
+    """
+    df_no_duplicates = df.drop_duplicates(subset='date', keep='first')
+    return df_no_duplicates
+
 def regularly_spaced_dates(df: pd.DataFrame) -> pd.DataFrame: 
     """
     Ensure that the dates are regularly spaced. For LSTM models, the dates
