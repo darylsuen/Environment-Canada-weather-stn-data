@@ -72,7 +72,6 @@ def get_stn_data_concurrently(url: str, stn_id: str) -> pd.DataFrame:
             # it from the list of dataframes if it is empty.
             if not df.empty:
                 dataframes.append(df)
-            dataframes.append(df)
     return dataframes
     
 def concatenate_daily_dataframes(dataframes: list)-> pd.DataFrame:
@@ -130,34 +129,37 @@ def drop_columns_hourly_data(df: pd.DataFrame) -> pd.DataFrame:
                  )
     return df_dropped
 
-def check_for_duplicate_dates(df: pd.DataFrame) -> None:
+def check_for_duplicate_dates_in_daily(df: pd.DataFrame) -> None:
     """
     Check if there are duplicate dates in the dataframe. If there are, the
     functions that ensure the dates or hours are regularly spaced will not work.
     """
-    unique_dates_count = df['date'].nunique()
+    unique_dates_count = df['Date/Time'].nunique()
     total_rows = len(df)
     try:
         assert unique_dates_count == total_rows
     except AssertionError:
-        raise ValueError('There are duplicate dates in the dataframe.')
+        duplicate_dates = df[df['Date/Time'].duplicated(keep=False)]['Date/Time'].unique()
+        for date in duplicate_dates:
+            print(date)
+        raise ValueError('There are duplicate dates in the dataframe.')   
     
-def print_duplicate_dates(df: pd.DataFrame) -> None:
+def print_duplicate_dates_in_daily(df: pd.DataFrame) -> None:
     """
     Print the duplicate dates in the dataframe.
     """
-    duplicate_dates = df[df['date'].duplicated(keep=False)]['date'].unique()
+    duplicate_dates = df[df['Date/Time'].duplicated(keep=False)]['Date/Time'].unique()
     for date in duplicate_dates:
         print(date)
 
-def remove_duplicate_dates(df: pd.DataFrame) -> pd.DataFrame:
+def remove_duplicate_dates_in_daily(df: pd.DataFrame) -> pd.DataFrame:
     """
     Remove duplicate dates from the dataframe.
     """
-    df_no_duplicates = df.drop_duplicates(subset='date', keep='first')
+    df_no_duplicates = df.drop_duplicates(subset='Date/Time', keep='first')
     return df_no_duplicates
 
-def regularly_spaced_dates(df: pd.DataFrame) -> pd.DataFrame: 
+def regularly_spaced_dates_in_daily(df: pd.DataFrame) -> pd.DataFrame: 
     """
     Ensure that the dates are regularly spaced. For LSTM models, the dates
     should be regularly spaced.
@@ -205,7 +207,7 @@ def get_date_range(df: pd.DataFrame) -> str:
         ) 
         return date_range
     
-def save_cleaned_daily_data_to_csv(df: pd.DataFrame, foldername: str, stn_id: str, date_range: str) -> None:
+def save_cleaned_daily_data_to_csv(df: pd.DataFrame, foldername: str, stn_id: str, date_range) -> None:
     # Save the cleaned data to a CSV file.
     cwd = os.getcwd()
     daily_dir_path = os.path.join(cwd, foldername)
